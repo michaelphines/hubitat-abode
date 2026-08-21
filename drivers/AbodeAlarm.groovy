@@ -763,15 +763,18 @@ def parseEvent(String event_text) {
           childDevice=getChildDevice(reply[0]['id'])
 // humidity: humidity:20 %
           if ( reply[0]['statuses']['humidity'] != null ) {
-             if (logTrace) log.trace "humidity: "+reply[0]['statuses']['humidity']
-             tmp=reply[0]['statuses']['humidity'].toString()
-             (a,b) = reply[0]['statuses']['humidity'].toString().split(' ')
-             if ( a.toInteger() >= 0  && b == "%" ) {
-               childDevice.sendEvent(name: "humidity", value: a.toInteger(), unit: '% RH', descriptionText: "${childDevice.displayName} humidity is "+ a + "%")
-               alert_value = reply[0]['name'] + "humidity =" + a
-               message = reply[0]['name'] + " humidity " + a + "%"
-               sendEnabledEvents(alert_value, message, "LM")
-             }
+            if (logTrace) log.trace "humidity: "+reply[0]['statuses']['humidity']
+            def humidityParts = reply[0]['statuses']['humidity'].toString().split(' ')
+            if (humidityParts.size() >= 2) {
+              a = humidityParts[0]
+              b = humidityParts[1]
+              if (a.isInteger() && a.toInteger() >= 0 && b == "%") {
+                 childDevice.sendEvent(name: "humidity", value: a.toInteger(), unit: '% RH', descriptionText: "${childDevice.displayName} humidity is " + a + "%")
+                 alert_value = reply[0]['name'] + "humidity =" + a
+                 message = reply[0]['name'] + " humidity " + a + "%"
+                 sendEnabledEvents(alert_value, message, "LM")
+              }
+            }
           }
 // temp: temp:32.1, temperature:90 °F
 // Take "temp" in C, and save it as whatever location we are in.
@@ -788,16 +791,19 @@ def parseEvent(String event_text) {
           }
 // lux:  lux:0 lx
           if ( reply[0]['statuses']['lux'] != null ) {
-             if (logTrace) log.trace "lux: "+reply[0]['statuses']['lux']
-             (a,b) = reply[0]['statuses']['lux'].toString().split(' ')
-             if ( a.toInteger() >= 0  && b == 'lx' ) {
-               childDevice.sendEvent(name: "illuminance", value: a, unit: 'lx', descriptionText: "${childDevice.displayName} lux is "+ a)
-               alert_value = reply[0]['name'] + "lux =" + a
-               message = reply[0]['name'] + " lux " + a
-               sendEnabledEvents(alert_value, message, "LM")
-             }
+            if (logTrace) log.trace "lux: "+reply[0]['statuses']['lux']
+            def luxParts = reply[0]['statuses']['lux'].toString().split(' ')
+            if (luxParts.size() >= 2) {
+              a = luxParts[0]
+              b = luxParts[1]
+              if (a.isInteger() && a.toInteger() >= 0 && b == 'lx') {
+                 childDevice.sendEvent(name: "illuminance", value: a.toInteger(), unit: 'lx', descriptionText: "${childDevice.displayName} lux is " + a)
+                 alert_value = reply[0]['name'] + "lux =" + a
+                 message = reply[0]['name'] + " lux " + a
+                 sendEnabledEvents(alert_value, message, "LM")
+              }
+            }
           }
-
         }
         break
       default:
