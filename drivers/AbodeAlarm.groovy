@@ -158,8 +158,8 @@ def createChildDevices() {
         childDevice = getChildDevice(reply[cnt]['id'])
         if ( childDevice.getName() != 'Abode: '+reply[cnt]['name'] ) childDevice.setName('Abode: '+reply[cnt]['name'])
         if (logDebug) log.debug "setting child state: " + reply[cnt]['status']
-        if ( reply[cnt]['type'] == 'Door Contact' && reply[cnt]['status'] == 'Closed' ) childDevice.sendEvent(name: "contact", value: "closed", descriptionText: "${childDevice.displayName} is closed")
-        if ( reply[cnt]['type'] == 'Door Contact' && reply[cnt]['status'] == 'Opened' ) childDevice.sendEvent(name: "contact", value: "open",   descriptionText: "${childDevice.displayName} is open")
+        if ( reply[cnt]['type'] == 'Door Contact' && reply[cnt]['status'] in ['Closed','Close'] ) childDevice.sendEvent(name: "contact", value: "closed", descriptionText: "${childDevice.displayName} is closed")
+        if ( reply[cnt]['type'] == 'Door Contact' && reply[cnt]['status'] in ['Opened','Open'] ) childDevice.sendEvent(name: "contact", value: "open",   descriptionText: "${childDevice.displayName} is open")
         if ( reply[cnt]['type'] == 'Occupancy' && reply[cnt]['statuses']['motion'] == '0' ) childDevice.sendEvent(name: "motion", value: "inactive", descriptionText: "${childDevice.displayName} is clear")
         if ( reply[cnt]['type'] == 'Occupancy' && reply[cnt]['statuses']['motion'] == '1' ) childDevice.sendEvent(name: "motion", value: "active",   descriptionText: "${childDevice.displayName} detected motion")
         if ( reply[cnt]['type'] == 'GLASS' ) childDevice.sendEvent(name: "shock", value: "clear",   descriptionText: "${childDevice.displayName} clear")
@@ -696,8 +696,8 @@ def parseEvent(String event_text) {
           if (saveDevices) {
             if (getChildDevice(json_data.device_id) != null) {
               childDevice=getChildDevice(json_data.device_id)
-              if ( json_data.device_type == 'Door Contact' && json_data.event_type == 'Closed' ) childDevice.sendEvent(name: "contact", value: "closed", descriptionText: "${childDevice.displayName} is closed")
-              if ( json_data.device_type == 'Door Contact' && json_data.event_type == 'Opened' ) childDevice.sendEvent(name: "contact", value: "open",   descriptionText: "${childDevice.displayName} is open")
+              if ( json_data.device_type == 'Door Contact' && json_data.event_type in ['Closed','Close'] ) childDevice.sendEvent(name: "contact", value: "closed", descriptionText: "${childDevice.displayName} is closed")
+              if ( json_data.device_type == 'Door Contact' && json_data.event_type in ['Opened','Open'] ) childDevice.sendEvent(name: "contact", value: "open",   descriptionText: "${childDevice.displayName} is open")
               if ( json_data.device_type == 'Smoke Detector' && json_data.event_type == 'Smoke Alarm'  ) childDevice.sendEvent(name: "smoke", value: "detected",   descriptionText: "${childDevice.displayName} is detected")
               if ( json_data.device_type == 'Smoke Detector' && json_data.event_type == 'Smoke Clear'  ) childDevice.sendEvent(name: "smoke", value: "clear",   descriptionText: "${childDevice.displayName} is clear")
               if ( json_data.device_type == 'Water Sensor' && json_data.event_type == 'Water Detected' ) childDevice.sendEvent(name: "water", value: "wet",   descriptionText: "${childDevice.displayName} is wet")
