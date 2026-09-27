@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html)
 
+## Unreleased
+
+### Fixed
+
+- Parse Set-Cookie headers without splitting expiration dates or truncating values
+  containing equals signs. Preserve empty values, accept repeated header lists,
+  and reject malformed headers before changing stored session cookies.
+- Add regression tests covering the expiration-date crash and cookie value handling.
+
 ## 2020-04-25 Release 1.0.1
 
 ### Added

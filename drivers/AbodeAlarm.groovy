@@ -400,12 +400,29 @@ private parseMode(Map mode, Set areas) {
 }
 
 // HTTP methods tuned for Abode
-private storeCookies(String cookies) {
-  // Cookies are comma separated, colon-delimited pairs
-  cookies.split(',').each {
-    namevalue = it.split(';')[0].split('=')
-    state.cookies[namevalue[0]] = namevalue[1]
+private storeCookies(cookies) {
+  // Hubitat can expose repeated Set-Cookie headers as a collection or a joined string.
+  def headers = cookies instanceof Collection ? cookies : [cookies]
+  def parsedCookies = [:]
+  headers.each { header ->
+    if (!(header instanceof String) || header.trim().isEmpty()) {
+      throw new IllegalArgumentException('Invalid Set-Cookie header: expected a non-empty string')
+    }
+    // Only split before a cookie name followed by '='. Expires dates contain commas.
+    header.split(/,\s*(?=[!#$%&'*+.^_`|~0-9A-Za-z-]+\s*=)/).each { cookie ->
+      def pair = cookie.split(';', 2)[0].trim()
+      def separator = pair.indexOf('=')
+      if (separator <= 0 || !(pair.substring(0, separator).trim() ==~ /[!#$%&'*+.^_`|~0-9A-Za-z-]+/)) {
+        // Never include header contents in errors: they contain session credentials.
+        throw new IllegalArgumentException('Invalid Set-Cookie header: expected a cookie name=value pair')
+      }
+      def name = pair.substring(0, separator).trim()
+      // Preserve padding and empty values; split('=') loses both.
+      parsedCookies[name] = pair.substring(separator + 1).trim()
+    }
   }
+  // Validate every header before changing the session cookie jar.
+  state.cookies.putAll(parsedCookies)
 }
 
 private doHttpRequest(String method, String path, Map body = [:]) {

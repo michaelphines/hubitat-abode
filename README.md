@@ -1,5 +1,34 @@
 # Abode Alarm driver for Hubitat
 
+## Cookie parser repair
+
+The `fix/cookie-parser` branch fixes `storeCookies()` splitting the comma in an
+`Expires` date, which caused `ArrayIndexOutOfBoundsException`. It also preserves
+empty cookie values and values containing `=`, supports repeated header lists,
+and validates headers before updating the session cookies. Malformed headers
+produce an error without including session credentials in the error message.
+
+Run the regression suite from the repository root with:
+
+```sh
+groovy tests/CookieParserTest.groovy
+```
+
+The suite compiles the actual driver and exercises its cookie parser without
+running Hubitat lifecycle methods or contacting Abode. It passes on Groovy
+2.4.21 and 6.0.0. The original driver fails on the expiration-date regression.
+
+Before installing, back up the existing Hubitat driver source and confirm it is
+the `Abode Alarm 2024` driver from `x86cpu`. Apply this change to the existing
+driver entry, retaining device configuration. The patched source is:
+
+https://raw.githubusercontent.com/michaelphines/hubitat-abode/fix/cookie-parser/drivers/AbodeAlarm.groovy
+
+Installation and connection recovery must still be verified on the actual hub.
+This parser fix alone does not establish that every disconnect is resolved.
+Hubitat Package Manager or an upstream import can overwrite this patch; review
+the source before applying upstream updates.
+
 ## Originally developed by jorhett:  [https://github.com/jorhett/hubitat-abode](https://github.com/jorhett/hubitat-abode)
 
 Realtime management and tracking of an Abode Alarm system. This works for both controlling Abode from Hubitat,
